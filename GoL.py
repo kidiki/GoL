@@ -6,12 +6,15 @@ Created on Sat Dec  2 22:55:49 2017
 """
 
 import tkinter as tk
-import random
 import numpy as np
 
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        #self.pack()
+        #self.createWidgets()
+        
+        self.flag = True
         self.canvas = tk.Canvas(self, width=500, height=550, borderwidth=0, highlightthickness=0)
         self.canvas.pack(side="top", fill="both", expand="true")
         self.rows = 100
@@ -32,25 +35,60 @@ class App(tk.Tk):
                 
     def play(self):
         a = np.zeros((20, 20))
-        for (cell in self.rect.iterkeys()):
-            if (self.canvas.gettags(self.rect(cell))[0] == "alive"):
-                a[cell[0], cell[1]] = 1
-        
+        for i in range(50):
+            for cell in self.rect.keys():
+                if (self.canvas.gettags(self.rect[cell[0], cell[1]])[0] == "alive"):
+                    a[cell[0], cell[1]] = 1
             
-
+            a = self.next_generation(a)            
+            for i in range(a.shape[0]):
+                for j in range(a.shape[1]):
+                    if(a[i, j] == 1.0):
+                        self.canvas.itemconfig(self.rect[i, j], tag="alive")
+                    else:
+                        self.canvas.itemconfig(self.rect[i, j], tag="dead")
+            
+   
+    
+    
+    def next_generation(self, a):
+        a_new = np.lib.pad(a, ((1, 1), (1, 1)), 'wrap')
+        for i in range(1, a.shape[0]+1):
+            for j in range(1, a.shape[1]+1):
+                population = np.sum(a_new[i-1:i+2, j-1:j+2])
+                if (population == 3):
+                   a[i-1, j-1] = 1
+                elif(population == 4):
+                    if(a_new[i, j] == 1):
+                        a[i-1, j-1] = 1
+                else:
+                    a[i-1, j-1] = 0
+        return a
+            
+    
+    def stop(self):
+        self.flag = False
          
     def createWidgets(self):
-        self.START = Button(self)
+        self.START = tk.Button(self)
         self.START["text"] = "Start"
-        self.START["fg"] = 'blue'
+        self.START["fg"] = 'black'
         self.START["command"] = self.play
+        
+        self.START.pack({"side":"left"})
+        
+        self.STOP = tk.Button(self)
+        self.STOP["text"] = "Stop"
+        self.STOP["fg"] = 'black'
+        self.STOP["command"] = self.stop
+        
+        self.STOP.pack({"side":"right"})
     
 
     def motion(self, event):
        self.x, self.y = event.x, event.y
        self.x = int(self.x/25)
        self.y = int(self.y/25)
-        
         
        self.redraw(1000)
         
@@ -63,6 +101,10 @@ class App(tk.Tk):
             self.canvas.itemconfig(item_id, tag="dead")
         self.canvas.itemconfig("dead", fill="white")
         self.canvas.itemconfig("alive", fill="black")
+    
+    def redrawAfterPlay(self):
+        self.canvas.itemconfig("dead", fill="white")
+        self.canvas.itemconfig("alive", fill="black")
 
 
         
@@ -72,6 +114,7 @@ class App(tk.Tk):
 if __name__ == "__main__":
     app = App()
     app.bind('<Button-1>', app.motion)
+    app.createWidgets()
     app.mainloop()
 
     
