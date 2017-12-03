@@ -10,12 +10,24 @@ Any live cell with more than three live neighbours dies, as if by overpopulation
 Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 """
 
-import Tkinter
+
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-from Tkinter import *
+a = np.zeros((20, 20))
+#a[14, 16] = 1
+#a[15:17, 14] = 1
+#a[17, 15:17] = 1
+#a[15:17, 17] = 1
+
+a[10, 10:12]=1
+a[12:15, 12] = 1
+a[10:12, 13]= 1
+a[16, 11] = 1
+a[16, 9] = 1
 
 def next_generation(a):
     a_new = np.lib.pad(a, ((1, 1), (1, 1)), 'wrap')
@@ -33,29 +45,12 @@ def next_generation(a):
     return a
     
 
-a = np.zeros((30, 30))
-a[14, 16] = 1
-a[15:17, 14] = 1
-a[17, 15:17] = 1
-a[15:17, 17] = 1
-
-
-master = Tk()
-
-b = Button(master, text="Start", command=next_generation(a))
-b.pack()
-
-mainloop()
-
-
-
-
 ims=[]
 fig=plt.figure() 
 
-for next in range(150):
+for next in range(200):
     nextGenerationArray = next_generation(a)
-    ims.append((plt.imshow(np.copy(nextGenerationArray)),))
+    ims.append((plt.imshow(np.copy(nextGenerationArray),cmap='prism'),))
 
 
 
@@ -64,6 +59,7 @@ imani = animation.ArtistAnimation(fig,ims,interval=150,repeat=False)
 #plt.clf()                
 #plt.imshow(a)
 plt.show()
+
 
             
             
